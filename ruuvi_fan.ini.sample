@@ -7,6 +7,10 @@ timeout_check_interval=10
 temp_max=28
 temp_min=27.9
 
+db_host=localhost
+db_port=8086
+db_name=ruuvi
+
 [Tags]
 tag_aq_white=CD:04:2A:92:2A:DD
 tag_aq_green=F5:A2:32:52:CC:7F
