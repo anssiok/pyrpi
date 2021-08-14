@@ -3,6 +3,7 @@ import RPi.GPIO as GPIO
 from ruuvitag_sensor.ruuvi import RuuviTagSensor
 import requests, configparser, signal
 from datetime import datetime
+from influxdb import InfluxDBClient
 
 # read config
 config = configparser.ConfigParser()
@@ -16,12 +17,19 @@ timeout_check_interval = int(config.get('General', 'timeout_check_interval'))
 temp_max = float(config.get('General', 'temp_max'))
 temp_min = float(config.get('General', 'temp_min'))
 
+db_host = config.get('General', 'db_host')
+db_port = config.get('General', 'db_port')
+db_name = config.get('General', 'db_name')
+
 macs = []
 names = []
 timers = []
 move_counts = []
 fan_state = 0
 pin = 14
+
+dbClient = InfluxDBClient(host=dbhost, port=dbport)
+dbClient.switch_database(db_name)
 
 for tag in config.items('Tags'):
     print(tag)
@@ -84,6 +92,20 @@ def handle_data(found_data):
 #        response = requests.post(
 #            webhook, headers={'Content-type': 'application/json'}, data='{"text":\''+msg+'\'}'
 #        )
+    json_body = [
+        {
+            "measurement": "fan_info",
+            "tags": {
+                "fan_id": "01"
+            },
+            "time": datetime.now().isoformat(),
+            "fields": {
+                "fan_status": fan_state
+            }
+        }
+    ]
+    dbClient.write_points(json_body)
+
     timers[idx] = datetime.now()
 
 try:
