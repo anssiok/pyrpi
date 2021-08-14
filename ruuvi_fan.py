@@ -105,7 +105,7 @@ def handle_data(found_data):
             },
             "time": datetime.now().isoformat(),
             "fields": {
-                "fan_status": fan_state
+                "fan_state": fan_state
             }
         }
     ]
