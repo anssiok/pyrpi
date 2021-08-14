@@ -28,7 +28,7 @@ move_counts = []
 fan_state = 0
 pin = 14
 
-dbClient = InfluxDBClient(host=dbhost, port=dbport)
+dbClient = InfluxDBClient(host=db_host, port=db_port)
 dbClient.switch_database(db_name)
 
 for tag in config.items('Tags'):
@@ -75,12 +75,17 @@ def handle_data(found_data):
     idx = macs.index(found_mac)
     found_name = names[idx]
     temperature = found_data[1]['temperature']
-    print (
-        datetime.now().strftime("%F %H:%M:%S") +
-        ' mac: ' + str(found_data[1]['mac']) +
-        ' battery: ' + str(found_data[1]['battery']) +
-        ' temperature: ' + str(temperature)
+    print ('mac:' + str(found_data[1]['mac']) +
+        ' batt:' + str(found_data[1]['battery']) +
+        ' temp:' + str(temperature) +
+        ' fan:' + str(fan_state)
     )
+#    print (
+#        datetime.now().strftime("%F %H:%M:%S") +
+#        ' mac: ' + str(found_data[1]['mac']) +
+#        ' battery: ' + str(found_data[1]['battery']) +
+#        ' temperature: ' + str(temperature)
+#    )
     if temperature > temp_max and fan_state == 0:
         print('fan on')
         GPIO.output(pin, GPIO.HIGH)
