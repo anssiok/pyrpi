@@ -40,7 +40,7 @@ for tag in config.items('Tags'):
 listen_macs = []
 for l in listen.split(','):
     listen_macs.append(macs[names.index(l)])
-    
+
 print('Listen: ' + str(listen_macs))
 
 signal.signal(signal.SIGALRM, timer_handler)
@@ -66,7 +66,6 @@ def handle_data(found_data):
         print('fan stopped')
         GPIO.output(pin, GPIO.LOW)
         fan_state = 0
-
     json_body = [
         {
             "measurement": "fan_info",
