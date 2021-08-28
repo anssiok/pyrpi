@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 import RPi.GPIO as GPIO
 from ruuvitag_sensor.ruuvi import RuuviTagSensor
-import requests, configparser, signal
+import configparser
 from datetime import datetime
 from influxdb import InfluxDBClient
 
@@ -22,8 +22,6 @@ db_name = config.get('General', 'db_name')
 
 macs = []
 names = []
-timers = []
-move_counts = []
 fan_state = 0
 pin = 14
 
@@ -34,17 +32,12 @@ for tag in config.items('Tags'):
     print(tag)
     names.append(tag[0])
     macs.append(tag[1])
-    move_counts.append(-1)
-    timers.append(datetime.now())
 
 listen_macs = []
 for l in listen.split(','):
     listen_macs.append(macs[names.index(l)])
 
 print('Listen: ' + str(listen_macs))
-
-signal.signal(signal.SIGALRM, timer_handler)
-signal.alarm(timeout_check_interval)
 
 # Handle data reception
 def handle_data(found_data):
@@ -78,8 +71,6 @@ def handle_data(found_data):
         }
     ]
     dbClient.write_points(json_body)
-
-    timers[idx] = datetime.now()
 
 try:
     GPIO.setmode(GPIO.BCM)
