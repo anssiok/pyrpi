@@ -1,57 +1,77 @@
 #!/usr/bin/python3
 from ruuvitag_sensor.ruuvi import RuuviTagSensor
+import requests, configparser, signal, os
 from datetime import datetime
 from influxdb import InfluxDBClient
-import configparser
 
+# read config
+configfile=os.path.splitext(os.path.basename(__file__))[0] + '.ini'
+print(configfile)
 config = configparser.ConfigParser()
-config.read(['./ruuvi2influxdb.ini', '/opt/ruuvi/ruuvi2influxdb.ini'])
+config.read([configfile,'/opt/ruuvi/' + configfile])
 
-listen=config.get('General', 'listen')
-influxdb=config.get('General', 'influxdb')
+db_host = config.get('General', 'db_host')
+db_port = config.get('General', 'db_port')
+db_name = config.get('General', 'db_name')
+db_measurement = config.get('General', 'db_measurement')
+
+listen = config.get('General', 'listen')
 
 macs = []
-listen_macs = []
 names = []
+listen_macs = []
 
-ixClient = InfluxDBClient(host='localhost', port=8086)
-ixClient.switch_database('ruuvi')
+dbClient = InfluxDBClient(host=db_host, port=db_port)
+dbClient.switch_database(db_name)
 
 for tag in config.items('Tags'):
     print(tag)
     names.append(tag[0])
     macs.append(tag[1])
 
-#('FB:D8:55:BE:DC:9A', {'data_format': 5, 'humidity': 22.97, 'temperature': 21.59, 'pressure': 1000.67, 'acceleration': 1036.5018089709251, 'acceleration_x': 28, 'acceleration_y': -16, 'acceleration_z': 1036, 'tx_power': 4, 'battery': 2701, 'movement_counter': 156, 'measurement_sequence_number': 49793, 'mac': 'fbd855bedc9a'})
-
 for l in listen.split(','):
     listen_macs.append(macs[names.index(l)])
+
+print('Listen: ' + listen + '(' + str(listen_macs) + ')')
+
+# Handle data reception
+def handle_data(received_data):
+    """
+    Convert data into RuuviCollector naming schme and scale
+    returns:
+        Object to be written to InfluxDB
+    """
+    mac = received_data[0]
+    payload = received_data[1]
+    name = names[macs.index(mac)]
     
-print('Listen: ' + str(listen_macs))
-
-def handle_data(in_data):
-    in_mac = in_data[0]
-    in_name = names[macs.index(in_mac)]
-    in_temperature = in_data[1]["temperature"]
-    in_dataformat = in_data[1]["dataformat"]
-    print (datetime.now().strftime("%F %H:%M:%S"))
-    print(in_data)
-
+    dataFormat = payload['data_format'] if ('data_format' in payload) else None
+    fields = {}
+    fields['temperature']               = payload['temperature'] if ('temperature' in payload) else None
+#    fields['humidity']                  = payload['humidity'] if ('humidity' in payload) else None
+#    fields['pressure']                  = payload['pressure'] if ('pressure' in payload) else None
+#    fields['accelerationX']             = payload['acceleration_x'] if ('acceleration_x' in payload) else None
+#    fields['accelerationY']             = payload['acceleration_y'] if ('acceleration_y' in payload) else None
+#    fields['accelerationZ']             = payload['acceleration_z'] if ('acceleration_z' in payload) else None
+    fields['batteryVoltage']            = payload['battery']/1000.0 if ('battery' in payload) else None
+#    fields['txPower']                   = payload['tx_power'] if ('tx_power' in payload) else None
+#    fields['movementCounter']           = payload['movement_counter'] if ('movement_counter' in payload) else None
+#    fields['measurementSequenceNumber'] = payload['measurement_sequence_number'] if ('measurement_sequence_number' in payload) else None
+#    fields['tagID']                     = payload['tagID'] if ('tagID' in payload) else None
+#    fields['rssi']                      = payload['rssi'] if ('rssi' in payload) else None
     json_body = [
         {
-            "measurement": "ruuvi_measurements",
-            "tags": {
-                "dataFormat": in_dataformat
-                "name": in_name,
-                "mac": upper(in_mac)
+            'measurement': db_measurement,
+            'tags': {
+                'mac': mac,
+                'dataFormat': dataFormat,
+                'name': name
             },
-            "time": "2018-03-28T8:01:00Z",
-            "fields": {
-                "temperature": 127
-            }
+            'fields': fields
         }
     ]
+    print(json_body)
+    dbClient.write_points(json_body)
 
-    
-RuuviTagSensor.get_datas(handle_data, listen_macs)
-print('done')
+if __name__ == "__main__":
+    RuuviTagSensor.get_datas(handle_data, listen_macs)
