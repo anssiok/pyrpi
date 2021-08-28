@@ -1,13 +1,13 @@
 #!/usr/bin/python3
 from ruuvitag_sensor.ruuvi import RuuviTagSensor
-import requests, configparser, signal, os
+import configparser, os
 from datetime import datetime
 from influxdb import InfluxDBClient
 
 # read config
 configfile=os.path.splitext(os.path.basename(__file__))[0] + '.ini'
-print(configfile)
 config = configparser.ConfigParser()
+config.read(['ruuvi_names.ini', '/opt/ruuvi/ruuvi_names.ini'])
 config.read([configfile,'/opt/ruuvi/' + configfile])
 
 db_host = config.get('General', 'db_host')

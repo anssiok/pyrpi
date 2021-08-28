@@ -1,0 +1,7 @@
+[General]
+db_host=localhost
+db_port=8086
+db_name=ruuvi
+db_measurement=ruuvi_test
+
+listen=tag_aq_green
