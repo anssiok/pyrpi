@@ -7,6 +7,7 @@ from influxdb import InfluxDBClient
 
 # read config
 config = configparser.ConfigParser()
+config.read(['ruuvi_names.ini','/opt/ruuvi/ruuvi_names.ini'])
 config.read(['ruuvi_fan.ini','/opt/ruuvi/ruuvi_fan.ini'])
 
 listen = config.get('General', 'listen')

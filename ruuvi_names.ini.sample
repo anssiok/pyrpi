@@ -1,0 +1,8 @@
+[Tags]
+tag_name1=tag_mac1
+tag_name2=tag_mac2
+tag_name3=tag_mac3
+
+[tag_name1]
+[tag_name2]
+[tag_name3]
