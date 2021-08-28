@@ -103,7 +103,6 @@ def handle_data(found_data):
             "tags": {
                 "fan_id": "01"
             },
-            "time": datetime.now().isoformat(),
             "fields": {
                 "fan_state": fan_state
             }
