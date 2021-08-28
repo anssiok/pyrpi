@@ -11,8 +11,6 @@ config.read(['ruuvi_names.ini','/opt/ruuvi/ruuvi_names.ini'])
 config.read(['ruuvi_fan.ini','/opt/ruuvi/ruuvi_fan.ini'])
 
 listen = config.get('General', 'listen')
-tag_timeout = int(config.get('General', 'tag_timeout'))
-timeout_check_interval = int(config.get('General', 'timeout_check_interval'))
 
 temp_max = float(config.get('General', 'temp_max'))
 temp_min = float(config.get('General', 'temp_min'))
