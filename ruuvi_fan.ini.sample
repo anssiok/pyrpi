@@ -1,9 +1,6 @@
 [General]
 listen=tag05
 fan_pin=14
-webhook=https://your-webhook
-tag_timeout=60
-timeout_check_interval=10
 temp_max=28
 temp_min=27.9
 

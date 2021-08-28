@@ -10,7 +10,6 @@ config = configparser.ConfigParser()
 config.read(['ruuvi_fan.ini','/opt/ruuvi/ruuvi_fan.ini'])
 
 listen = config.get('General', 'listen')
-webhook = config.get('General', 'webhook')
 tag_timeout = int(config.get('General', 'tag_timeout'))
 timeout_check_interval = int(config.get('General', 'timeout_check_interval'))
 
@@ -44,27 +43,6 @@ for l in listen.split(','):
     
 print('Listen: ' + str(listen_macs))
 
-# Handle timeouts
-def timer_handler(signum, frame):
-    for idx, mac in enumerate(macs):
-        if mac in listen_macs:
-#            if timers[idx] == 0:
-#                print ('Already at timeout: ' + names[idx])
-#            el
-            if timers[idx] != 0:
-                if (datetime.now() - timers[idx]).total_seconds() > tag_timeout:
-                    msg = 'Ei yhteyttä: ' + names[idx]
-                    print(msg)
-#                    response = requests.post(
-#                        webhook,
-#                        headers={'Content-type': 'application/json'},
-#                        data='{"text":\'' + msg + '\'}'
-#                    )
-                    timers[idx] = 0
-#                else:
-#                    print('No timeout: ' + names[idx])
-    signal.alarm(timeout_check_interval)
-
 signal.signal(signal.SIGALRM, timer_handler)
 signal.alarm(timeout_check_interval)
 
@@ -80,23 +58,15 @@ def handle_data(found_data):
         ' temp:' + str(temperature) +
         ' fan:' + str(fan_state)
     )
-#    print (
-#        datetime.now().strftime("%F %H:%M:%S") +
-#        ' mac: ' + str(found_data[1]['mac']) +
-#        ' battery: ' + str(found_data[1]['battery']) +
-#        ' temperature: ' + str(temperature)
-#    )
     if temperature > temp_max and fan_state == 0:
-        print('fan on')
+        print('fan started')
         GPIO.output(pin, GPIO.HIGH)
         fan_state = 1
     if temperature < temp_min and fan_state == 1:
-        print('fan off')
+        print('fan stopped')
         GPIO.output(pin, GPIO.LOW)
         fan_state = 0
-#        response = requests.post(
-#            webhook, headers={'Content-type': 'application/json'}, data='{"text":\''+msg+'\'}'
-#        )
+
     json_body = [
         {
             "measurement": "fan_info",
