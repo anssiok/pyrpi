@@ -48,7 +48,7 @@ def handle_data(received_data):
     dataFormat = payload['data_format'] if ('data_format' in payload) else None
     fields = {}
     fields['temperature']               = payload['temperature'] if ('temperature' in payload) else None
-#    fields['humidity']                  = payload['humidity'] if ('humidity' in payload) else None
+    fields['humidity']                  = payload['humidity'] if ('humidity' in payload) else None
 #    fields['pressure']                  = payload['pressure'] if ('pressure' in payload) else None
 #    fields['accelerationX']             = payload['acceleration_x'] if ('acceleration_x' in payload) else None
 #    fields['accelerationY']             = payload['acceleration_y'] if ('acceleration_y' in payload) else None
