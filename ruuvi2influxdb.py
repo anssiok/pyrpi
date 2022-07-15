@@ -26,8 +26,13 @@ dbClient.switch_database(db_name)
 
 for tag in config.items('Tags'):
     print(tag)
-    names.append(tag[0])
-    macs.append(tag[1])
+    tag_name=tag[0]
+    tag_mac=tag[1]
+    names.append(tag_name)
+    macs.append(tag_mac)
+    temp_offsets.append(
+        config.get('Opts_'+tag_name, 'offset_temp', 0)
+    ):
 
 for l in listen.split(','):
     listen_macs.append(macs[names.index(l)])
@@ -43,17 +48,21 @@ def handle_data(received_data):
     """
     mac = received_data[0]
     payload = received_data[1]
-    name = names[macs.index(mac)]
+    idx = macs.index(mac)
+    name = names[idx]
+    
+    temp = payload['temperature'] if ('temperature' in payload) else None
+    temp_offset = temp_offsets[idx]
     
     dataFormat = payload['data_format'] if ('data_format' in payload) else None
     fields = {}
-    fields['temperature']               = payload['temperature'] if ('temperature' in payload) else None
-    fields['humidity']                  = payload['humidity'] if ('humidity' in payload) else None
+    fields['temperature']                = (temp + temp_offset) if (temp is not None) else None
+    fields['humidity']                   = payload['humidity'] if ('humidity' in payload) else None
 #    fields['pressure']                  = payload['pressure'] if ('pressure' in payload) else None
 #    fields['accelerationX']             = payload['acceleration_x'] if ('acceleration_x' in payload) else None
 #    fields['accelerationY']             = payload['acceleration_y'] if ('acceleration_y' in payload) else None
 #    fields['accelerationZ']             = payload['acceleration_z'] if ('acceleration_z' in payload) else None
-    fields['batteryVoltage']            = payload['battery']/1000.0 if ('battery' in payload) else None
+    fields['batteryVoltage']             = payload['battery']/1000.0 if ('battery' in payload) else None
 #    fields['txPower']                   = payload['tx_power'] if ('tx_power' in payload) else None
 #    fields['movementCounter']           = payload['movement_counter'] if ('movement_counter' in payload) else None
 #    fields['measurementSequenceNumber'] = payload['measurement_sequence_number'] if ('measurement_sequence_number' in payload) else None
@@ -71,6 +80,7 @@ def handle_data(received_data):
         }
     ]
     print(json_body)
+    print('Temp read:'+temp+' offset:'+temp_offset)
     dbClient.write_points(json_body)
 
 if __name__ == "__main__":

@@ -3,6 +3,10 @@ tag_name1=tag_mac1
 tag_name2=tag_mac2
 tag_name3=tag_mac3
 
-[tag_name1]
-[tag_name2]
+[Opts_tag_name1]
+offset_temp=0.6
+
+[Opts_tag_name2]
+offset_temp=0
+
 [tag_name3]
