@@ -4,7 +4,7 @@ import RPi.GPIO as GPIO
 import time
 
 channel = 14
-
+sleeptime = 5
 # GPIO setup
 GPIO.setmode(GPIO.BCM)
 GPIO.setup(channel, GPIO.OUT)
@@ -20,9 +20,9 @@ def motor_off(pin):
 if __name__ == '__main__':
     try:
         motor_on(channel)
-        time.sleep(1)
+        time.sleep(sleeptime)
         motor_off(channel)
-        time.sleep(1)
+        time.sleep(sleeptime)
         GPIO.cleanup()
     except KeyboardInterrupt:
         GPIO.cleanup()

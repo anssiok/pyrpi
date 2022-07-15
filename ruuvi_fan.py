@@ -24,6 +24,7 @@ dbClient = None
 
 macs = []
 names = []
+temp_offsets = []
 fan_state = 0
 
 for tag in config.items('Tags'):
@@ -33,9 +34,9 @@ for tag in config.items('Tags'):
     names.append(tag_name)
     macs.append(tag_mac)
     temp_offsets.append(
-        config.get('Opts_'+tag_name, 'offset_temp', 0)
-    ):
-    
+        float(config.get('Opts_'+tag_name, 'offset_temp', fallback=0))
+    )
+
 listen_macs = []
 for l in listen.split(','):
     listen_macs.append(macs[names.index(l)])
@@ -49,7 +50,7 @@ def handle_data(found_data):
     idx = macs.index(found_mac)
     found_name = names[idx]
     temperature = found_data[1]['temperature']
-    temp_offset = offsets_temp[idx]
+    temp_offset = temp_offsets[idx]
     print ('mac:'+str(found_data[1]['mac']),
         'batt:'+str(found_data[1]['battery']),
         'temp:'+str(temperature)+'+'+str(temp_offset),

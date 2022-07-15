@@ -20,6 +20,7 @@ listen = config.get('General', 'listen')
 macs = []
 names = []
 listen_macs = []
+temp_offsets = []
 
 dbClient = InfluxDBClient(host=db_host, port=db_port)
 dbClient.switch_database(db_name)
@@ -31,8 +32,8 @@ for tag in config.items('Tags'):
     names.append(tag_name)
     macs.append(tag_mac)
     temp_offsets.append(
-        config.get('Opts_'+tag_name, 'offset_temp', 0)
-    ):
+        float(config.get('Opts_'+tag_name, 'offset_temp', fallback=0))
+    )
 
 for l in listen.split(','):
     listen_macs.append(macs[names.index(l)])
@@ -80,7 +81,7 @@ def handle_data(received_data):
         }
     ]
     print(json_body)
-    print('Temp read:'+temp+' offset:'+temp_offset)
+    print('Temp read:',temp,' offset:',temp_offset)
     dbClient.write_points(json_body)
 
 if __name__ == "__main__":
