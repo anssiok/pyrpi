@@ -3,7 +3,7 @@ import RPi.GPIO as GPIO
 from ruuvitag_sensor.ruuvi import RuuviTagSensor
 import configparser, sys
 from datetime import datetime
-from influxdb import InfluxDBClient
+from influxdb import InfluxDBClient, exceptions
 
 # read config
 config = configparser.ConfigParser()
@@ -78,18 +78,16 @@ def handle_data(found_data):
             }
         }
     ]
-    try: 
+    try:
         if dbClient:
             dbClient.write_points(json_body)
         else:
             dbClient = InfluxDBClient(host=db_host, port=db_port)
             dbClient.switch_database(db_name)
-    except (InfluxDBClientError) as err:
-        print ('InfluxDBClientError: ' + err)
-        
-    except (InfluxDBServerError) as err:
-        print ('InfluxDBServerError: ' + err)
-        
+    except Exception as err:
+        print ('Got an Exception')
+        print (err)
+        pass
 
 try:
     GPIO.setmode(GPIO.BCM)
