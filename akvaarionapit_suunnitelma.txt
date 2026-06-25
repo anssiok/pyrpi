@@ -1,0 +1,22 @@
+UI
+==
+
+1. luetaan viimeisin syottoaika
+
+2. Piirretään UI
+- jos now-syottoaika > syottovali, niin viesti punaisella
+
+3. Painetaan syöttönappia
+- päivitetään syöttöaika
+- viesti vihreäksi
+- nollataan timer
+
+4. jos timer
+- viesti punaisella
+
+TIMER minuutin välein
+=====================
+1. Luetaan viim. syottoaika ja viim. notif
+2. Jos now-syottoaika > syottovali:
+  - jos viim_notif is null: notif ja viim_notif=now
+  - jos now-viim_notif > 1 pv, niin notif ja viim_notif nollaus
