@@ -1,3 +1,3 @@
 #!/bin/bash
-DISPLAY=:0 nohup ./akvaarionapit.py &
+DISPLAY=:0 ./akvaarionapit2.py &
 echo $! > start_akvaarionapit.pid

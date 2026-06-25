@@ -6,12 +6,26 @@ from datetime import datetime
 
 locale.setlocale(locale.LC_TIME, "fi_FI.UTF-8")
 
-syottovali=1000 #* 60 * 60 * 24
-vaihtovali=1000 #* 60 * 60 * 24 * 7
+syottovali=1000 * 60 * 60 * 24
+vaihtovali=1000 * 60 * 60 * 24 * 7
 
 with dbm.open('akvaarionapit_db', 'c') as db:
-    dt_syotetty = datetime.fromisoformat(db.get("syotetty", datetime.now().isoformat()).decode())
-    dt_vaihdettu = datetime.fromisoformat(db.get("vaihdettu", datetime.now().isoformat()).decode())
+    dt_syotetty = db.get("syotetty", None)
+    if dt_syotetty == None:
+        dt_syotetty = datetime.now()
+        db['syotetty'] = dt_syotetty
+    else:
+        dt_syotetty = datetime.fromisoformat(dt_syotetty.decode())
+
+    dt_vaihdettu = db.get("vaihdettu", None)
+    if dt_vaihdettu == None:
+        dt_vaihdettu = datetime.now()
+        db['vaihdettu'] = dt_syotetty
+    else:
+        dt_vaihdettu = datetime.fromisoformat(dt_vaihdettu.decode())
+
+print("syotetty:  " + dt_syotetty.isoformat())
+print("vaihdettu: " + dt_vaihdettu.isoformat())
 
 timer1_id=None
 timer2_id=None
@@ -25,6 +39,7 @@ def button1_pressed():
     timer1_id=root.after(syottovali, alarm1)
     with dbm.open('akvaarionapit_db', 'c') as db:
         db['syotetty'] = dt_syotetty.isoformat()
+    print(db['syotetty'])
 
 def check_situation1():
     global dt_syotetty, syottovali, message1
@@ -62,7 +77,7 @@ def alarm2():
 
 root = tk.Tk()
 root.title("Akvaarionapit")
-#root.attributes('-fullscreen', True)
+root.attributes('-fullscreen', True)
 root.config(bg="black")
 
 btn1 = tk.Button(
