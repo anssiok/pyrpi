@@ -20,7 +20,7 @@ with dbm.open('akvaarionapit_db', 'c') as db:
     dt_vaihdettu = db.get("vaihdettu", None)
     if dt_vaihdettu == None:
         dt_vaihdettu = datetime.now()
-        db['vaihdettu'] = dt_syotetty
+        db['vaihdettu'] = dt_vaihdettu
     else:
         dt_vaihdettu = datetime.fromisoformat(dt_vaihdettu.decode())
 
@@ -29,17 +29,6 @@ print("vaihdettu: " + dt_vaihdettu.isoformat())
 
 timer1_id=None
 timer2_id=None
-
-def button1_pressed():
-    global timer1_id, dt_syotetty, syottovali
-    dt_syotetty = datetime.now()
-    check_situation1()
-    if timer1_id is not None:
-        root.after_cancel(timer1_id)
-    timer1_id=root.after(syottovali, alarm1)
-    with dbm.open('akvaarionapit_db', 'c') as db:
-        db['syotetty'] = dt_syotetty.isoformat()
-    print(db['syotetty'])
 
 def check_situation1():
     global dt_syotetty, syottovali, message1
@@ -57,6 +46,16 @@ def check_situation2():
     else:
         message2.config(bg="LightGreen")        
     
+def button1_pressed():
+    global timer1_id, dt_syotetty, syottovali
+    dt_syotetty = datetime.now()
+    check_situation1()
+    if timer1_id is not None:
+        root.after_cancel(timer1_id)
+    timer1_id=root.after(syottovali, alarm1)
+    with dbm.open('akvaarionapit_db', 'c') as db:
+        db['syotetty'] = dt_syotetty.isoformat()
+
 def button2_pressed():
     global timer2_id, dt_vaihdettu, vaihtovali
     dt_vaihdettu = datetime.now()
