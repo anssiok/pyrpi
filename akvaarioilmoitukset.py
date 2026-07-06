@@ -10,41 +10,42 @@ syottovali=1000 * 60 * 60 * 24
 vaihtovali=1000 * 60 * 60 * 24 * 7
 
 myurl="http://ntfy.sh/kannistenkalat"
+dbname="/home/anssi/src/pyrpi/akvaarionapit_db"
 
 print(datetime.now().isoformat())
 
-with dbm.open('/home/anssi/src/pyrpi/akvaarionapit_db', 'c') as db:
+with dbm.open(dbname, 'c') as db:
     dt_syotetty = datetime.fromisoformat(db['syotetty'].decode())
     dt_vaihdettu = datetime.fromisoformat(db['vaihdettu'].decode())
  
-    print("syötetty:  " + dt_syotetty.isoformat())
-    print("vaihdettu: " + dt_vaihdettu.isoformat())
+#    print("syötetty:  " + dt_syotetty.isoformat())
+#    print("vaihdettu: " + dt_vaihdettu.isoformat())
 
     dt_syotetty_ilm = db.get("syotetty_ilm", None)
     if dt_syotetty_ilm != None:
         dt_syotetty_ilm = datetime.fromisoformat(dt_syotetty_ilm.decode())
-        print("syötetty ilm:  " + dt_syotetty_ilm.isoformat())
+#        print("syötetty ilm:  " + dt_syotetty_ilm.isoformat())
 
     dt_vaihdettu_ilm = db.get("vaihdettu_ilm", None)
     if dt_vaihdettu_ilm != None:
         dt_vaihdettu_ilm = datetime.fromisoformat(dt_vaihdettu_ilm.decode())
-        print("vaihdettu ilm:  " + dt_vaihdettu_ilm.isoformat())
+#        print("vaihdettu ilm:  " + dt_vaihdettu_ilm.isoformat())
 
 if (datetime.now() - dt_syotetty).total_seconds()*1000 > syottovali:
     if dt_syotetty_ilm == None or (datetime.now() - dt_syotetty_ilm).days > 0:
         data = "Akvaario on rempallaan! Kalat syötetty viimeksi " + dt_syotetty.strftime("%Ana %d.%m klo %H.%M")
+        print(data)
+        with dbm.open(dbname, 'c') as db:
+            db['syotetty_ilm'] = datetime.now().isoformat()
         req = request.Request(myurl, data=data.encode('utf-8'))
         res = request.urlopen(req)
-        print(data)
-        with dbm.open('akvaarionapit_db', 'c') as db:
-            db['syotetty_ilm'] = datetime.now().isoformat()
 
             
 if (datetime.now() - dt_vaihdettu).total_seconds()*1000 > vaihtovali:
     if dt_vaihdettu_ilm == None or (datetime.now() - dt_vaihdettu_ilm).days > 0:
         data = "Akvaario on rempallaan! Vesi vaihdettu viimeksi " + dt_vaihdettu.strftime("%Ana %d.%m klo %H.%M")
+        print(data)
+        with dbm.open(dbname, 'c') as db:
+            db['vaihdettu_ilm'] = datetime.now().isoformat()
         req = request.Request(myurl, data=data.encode('utf-8'))
         res = request.urlopen(req)
-        print(data)
-        with dbm.open('akvaarionapit_db', 'c') as db:
-            db['vaihdettu_ilm'] = datetime.now().isoformat()
