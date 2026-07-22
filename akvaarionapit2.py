@@ -93,7 +93,6 @@ message1 = tk.Label(
     root,
     font=("Arial", 20)
 )
-check_situation1()
 message1.pack()
 
 btn2 = tk.Button(
@@ -110,7 +109,9 @@ message2 = tk.Label(
     root,
     font=("Arial", 20)
 )
-check_situation2()
 message2.pack()
+
+check_situation1()
+check_situation2()
 
 root.mainloop()
